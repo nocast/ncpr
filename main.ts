@@ -161,8 +161,10 @@ router.get("/", (ctx) => {
 	ctx.response.body = index_page;  
 })
 
-router.get("/plugin/:name", (ctx) => {
-	ctx.response.body = plugin_page.replace("{plugin_name}",ctx.params.name);  
+router.get("/plugin/:name", async (ctx) => {
+    let info = parsePluginInfo(await getManifestContent(registry[ctx.params.name]));
+    let readme = await getReadmeContent(registry[ctx.params.name]);
+	ctx.response.body = plugin_page.replaceAll("{plugin_name}",info.name).replaceAll("{author}",info.author).replaceAll("{version}", info.version).replaceAll("{license}", info.license).replace("{readme}",readme);  
 })
 
 const app = new Application();

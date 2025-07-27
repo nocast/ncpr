@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{plugin_name} - NoCast Plugin Registry</title>
+    <!-- Light theme favicon -->
+    <link rel="icon" href="https://nocast.github.io/site/favicon.svg" media="(prefers-color-scheme: light)">
+
+    <!-- Dark theme favicon -->
+    <link rel="icon" href="https://nocast.github.io/site/favicon-dark.svg" media="(prefers-color-scheme: dark)">
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script src="https://cure53.de/purify.js"></script>
+</head>
+<body>
+	<a href="../" style="all:unset;cursor:pointer"><h3 id="header">The NoCast Plugin Registry</h2></a>
+    <div id="sidebar">
+    	<h2 id="title">{plugin_name}</h2>
+    	<input id="install" value="nocast install {plugin_name}" readonly><button onclick="copyInstall()" id="copy-btn"><img id="copy-img" src="https://www.svgrepo.com/show/82319/clipboard-outline.svg"></button>
+    	<p>By <b id="author">{author}</b></p>
+    	<p>Version: <b id="version">{version}</b></p>
+    	<p>License: <b>{license}</b></p>
+    </div>
+    <div id="readme-content"></div>
+</body>
+<script>
+let readme = "{readme}";
+document.getElementById("readme-content").innerHTML = DOMPurify.sanitize(marked.parse(readme));
+function copyInstall(){
+	// Get the text field
+	var copyText = document.getElementById("install");
+
+	// Select the text field
+	copyText.select();
+	copyText.setSelectionRange(0, 99999); // For mobile devices
+
+	// Copy the text inside the text field
+	navigator.clipboard.writeText(copyText.value);
+    document.getElementById("copy-img").src = "https://www.svgrepo.com/show/162251/check-mark-black-outline.svg";
+    setTimeout(function(){
+        document.getElementById("copy-img").src = "https://www.svgrepo.com/show/82319/clipboard-outline.svg";
+    }, 3000)
+}
+</script>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Lora&family=Playfair+Display:wght@500&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+	:root{
+        /* Fonts */
+        --title-font: "Playfair Display", serif;
+        --subtitle-font: "Lora", serif;
+        --content-font: "Source Code Pro", monospace;
+        
+        /* Colors */
+        --teal-1: #203A41;
+		--teal-2: #417685;
+		--teal-3: #417d8c;
+		--teal-6: #E7EBEF;
+		--teal-5: #c4d1d6;
+		--teal-4: #a5b7bf;
+    }
+    /* Dark mode */
+	@media (prefers-color-scheme: dark) {
+    	:root{
+        	--teal-black: var(--teal-1);
+			--teal-dark: var(--teal-2);
+			--teal-mdark: var(--teal-3);
+			--teal-white: var(--teal-6);
+			--teal-light: var(--teal-5);
+			--teal-mlight: var(--teal-4);
+    	}
+	}
+    /* Light mode */
+    @media (prefers-color-scheme: light) {
+        :root{
+        	--teal-black: var(--teal-6);
+			--teal-dark: var(--teal-5);
+			--teal-mdark: var(--teal-4);
+			--teal-white: var(--teal-1);
+			--teal-light: var(--teal-2);
+			--teal-mlight: var(--teal-3);
+    	}
+    }
+    
+    body, html{
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        margin: 0px;
+        padding: 0px;
+    }
+    
+    body{
+        background-color: var(--teal-black);
+        color: var(--teal-white);
+    }
+    
+    #sidebar{
+        display: flex;
+        flex-direction: column;
+        width: 15%;
+        position: absolute;
+        right: 1rem;
+        background-color: var(--teal-dark);
+        padding: 1rem;
+        border-radius: 1rem;
+    }
+    
+    #install{
+        margin-bottom: 1rem;
+    }
+    
+    #title{
+        margin-top: 0px;
+        font-family: var(--subtitle-font);
+    }
+    
+    #header{
+        font-size: 2rem;
+        margin-top: 1rem;
+        margin-left: 1rem;
+        font-family: var(--title-font);
+    }
+    
+    #sidebar p, #sidebar b, #sidebar input{
+        font-family: var(--content-font);
+    }
+    
+    #sidebar p{
+        margin: 0px;
+    }
+    
+    /* READMEs */
+    #readme-content{
+        width: 79%;
+        height: 86%;
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+        background-color: var(--teal-dark);
+        color: var(--teal-white);
+        border-radius: .5rem;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    #readme-content *{
+        margin-top: 0px;
+        font-family: var(--content-font);
+    }
+    #readme-content h1, #readme-content h2{
+        font-family: var(--title-font) !important;
+    }
+    #readme-content h3, #readme-content h4, #readme-content h5, #readme-content h6{
+        font-family: var(--subtitle-font) !important;
+    }
+    #readme-content p, #readme-content b, #readme-content i, #readme-content sub, #readme-content sup{
+        font-family: var(--content-font);
+    }
+    #readme-content code{
+        background-color: var(--teal-black);
+		display: inline-block;
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 1px;
+		padding-bottom: 1px;
+    }
+    #readme-content a{
+        color: var(--teal-black);
+    }
+    
+    #copy-btn{
+        all: unset;
+        width: min-content;
+        position: relative;
+        opacity: 0;
+        transition: opacity .5s;
+		top: -38px;
+		right: -265px;
+        cursor: pointer;
+    }
+    input:hover + #copy-btn, #copy-btn:hover{
+        opacity: 1;
+    }
+    #copy-btn img{
+        height: 20px;
+        width: 20px;
+    }
+</style>
+</html>
