@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NoCast Plugin Registry</title>
+    <!-- Light theme favicon -->
+    <link rel="icon" href="https://nocast.github.io/site/favicon.svg" media="(prefers-color-scheme: light)">
+
+    <!-- Dark theme favicon -->
+    <link rel="icon" href="https://nocast.github.io/site/favicon-dark.svg" media="(prefers-color-scheme: dark)">
+</head>
+<body>
+	<button class="second" onclick="window.open('https://github.com/nocast/ncpr')"><svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 22.0268V19.1568C16.0375 18.68 15.9731 18.2006 15.811 17.7506C15.6489 17.3006 15.3929 16.8902 15.06 16.5468C18.2 16.1968 21.5 15.0068 21.5 9.54679C21.4997 8.15062 20.9627 6.80799 20 5.79679C20.4558 4.5753 20.4236 3.22514 19.91 2.02679C19.91 2.02679 18.73 1.67679 16 3.50679C13.708 2.88561 11.292 2.88561 8.99999 3.50679C6.26999 1.67679 5.08999 2.02679 5.08999 2.02679C4.57636 3.22514 4.54413 4.5753 4.99999 5.79679C4.03011 6.81549 3.49251 8.17026 3.49999 9.57679C3.49999 14.9968 6.79998 16.1868 9.93998 16.5768C9.61098 16.9168 9.35725 17.3222 9.19529 17.7667C9.03334 18.2112 8.96679 18.6849 8.99999 19.1568V22.0268" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 20.0267C6 20.9999 3.5 20.0267 2 17.0267" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>See the source</button>
+	<h1 id="title">The NoCast Plugin Registry</h1>
+    <input id="search" type="text" placeholder="Start typing to search plugins...">
+    <div id="results"></div>
+</body>
+<script>
+let input = document.getElementById("search");
+let cont = document.getElementById("results");
+input.value = "";
+
+function displayPlugin(name, version, author, license){
+    return `<div class="plugin" onclick="window.location.href = '/plugin/${name}'">
+    		<h3 class="pl-name">${name} <p class="pl-version">(${version})</p></h3><br>
+    		By &nbsp<p class="pl-author">${author}</p>
+    		<br class="separ">
+    		<svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="pl-license-icon"><path class="pl-license-icon-path"></path></svg>
+    		<p class="pl-license">${license}</p>
+    	</div>`;
+}
+
+async function searchPlugins(query){
+    return (await fetch("/api/search/" + query)).json();
+}
+
+async function getPluginInfo(plugin){
+    return (await fetch("/api/info/"+plugin)).json();
+}
+
+async function searchAndDisplay(query){
+	let rendered = "";
+    cont.innerHTML = "";
+    let plugins = await searchPlugins(query);
+    for(let p in plugins){
+        let pl = await getPluginInfo(plugins[p]);
+        rendered += displayPlugin(pl.name, pl.version, pl.author, pl.license);
+    }
+    cont.innerHTML = rendered;
+}
+
+input.onkeyup = async function(){
+    if(input.value != ""){
+        document.body.classList.add("searching");
+        await searchAndDisplay(input.value);
+    }
+    else{
+        document.body.classList.remove("searching");
+    }
+}
+</script>
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Lora&family=Playfair+Display:wght@500&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+	:root{
+        /* Fonts */
+        --title-font: "Playfair Display", serif;
+        --subtitle-font: "Lora", serif;
+        --content-font: "Source Code Pro", monospace;
+        
+        /* Colors */
+        --teal-1: #203A41;
+		--teal-2: #417685;
+		--teal-3: #417d8c;
+		--teal-6: #E7EBEF;
+		--teal-5: #c4d1d6;
+		--teal-4: #a5b7bf;
+    }
+    /* Dark mode */
+	@media (prefers-color-scheme: dark) {
+    	:root{
+        	--teal-black: var(--teal-1);
+			--teal-dark: var(--teal-2);
+			--teal-mdark: var(--teal-3);
+			--teal-white: var(--teal-6);
+			--teal-light: var(--teal-5);
+			--teal-mlight: var(--teal-4);
+    	}
+	}
+    /* Light mode */
+    @media (prefers-color-scheme: light) {
+        :root{
+        	--teal-black: var(--teal-6);
+			--teal-dark: var(--teal-5);
+			--teal-mdark: var(--teal-4);
+			--teal-white: var(--teal-1);
+			--teal-light: var(--teal-2);
+			--teal-mlight: var(--teal-3);
+    	}
+    }
+    
+    
+	body, html{
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+    }
+    body{
+        background-color: var(--teal-black);
+        display: flex;
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+    }
+    
+    h1{
+        color: var(--teal-white);
+        font-family: var(--title-font);
+        font-size: 70px;
+        position: relative;
+        top: 0px;
+        opacity: 1;
+        height: 70px;
+        transition: top 1s,
+        			margin 1s,
+        			height 1s,
+        			opacity 1s;
+    }
+    body.searching h1{
+        margin: 0px;
+        opacity: 0;
+        height: 0px;
+        top: -100%
+    }
+    
+    #search{
+        all: unset;
+        position: relative;
+        background-color: var(--teal-mlight);
+        color: var(--teal-black);
+        width: 15%;
+        height: 1%;
+        transition: width 1s, height 1s, background-color .5s;
+        border-radius: .5rem;
+        font-family: var(--subtitle-font);
+        font-size: 1.3rem;
+        padding: 2rem;
+        margin-bottom: 1rem;
+    }
+    body.searching #search{
+        width: 45%;
+        height: .7%;
+    }
+    #search::placeholder{
+        color: var(--teal-dark);
+        font-family: var(--subtitle-font);
+        font-size: 1.3rem;
+        text-align: center;
+    }
+    #search:hover, #search:active, #search:focus{
+        background-color: var(--teal-light);
+    }
+    #results{
+        height: 0px;
+        width: 0px;
+        display: grid;
+        opacity: 0;
+        transition: height 1s, width 1s, opacity 0c.1s;
+        gap: 1rem;
+        grid-template-columns: auto auto auto;
+        display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+		grid-auto-rows: auto;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+		justify-content: center;
+        align-content: start;
+        overflow-y: auto;
+    }
+    body.searching #results{
+        opacity: 1;
+        height: 86%;
+        width: 80%;
+    }
+    .plugin{
+        color: var(--teal-light);
+        font-family: var(--subtitle-font);
+        width: 29rem;
+        cursor: pointer;
+        padding: 1rem;
+        height: 11rem;
+        background-color: var(--teal-dark);
+        transition: border-radius .5s;
+        border-radius: .3rem;
+    }
+    .plugin:hover{
+        border-radius: 2rem;
+    }
+    .pl-name{
+        font-family: var(--subtitle-font);
+		display: inline;
+        font-size: 1.7rem;
+		margin: 0px;
+    }
+    .separ{
+        display: block;
+        margin: 11%;
+    }
+    .pl-version{
+        margin: 0px;
+        display: inline;
+        font-size: calc(100% - 5px);
+        font-family: var(--content-font);
+    }
+    .pl-author{
+        display: inline;
+        font-family: var(--content-font);
+    }
+    .pl-license{
+        display: inline;
+    }
+    .pl-license-icon{
+        display: inline;
+        fill: var(--teal-light);
+    }
+    .pl-license-icon-path{
+        d: path("M8.75.75V2h.985c.304 0 .603.08.867.231l1.29.736c.038.022.08.033.124.033h2.234a.75.75 0 0 1 0 1.5h-.427l2.111 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.006.005-.01.01-.045.04c-.21.176-.441.327-.686.45C14.556 10.78 13.88 11 13 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L12.178 4.5h-.162c-.305 0-.604-.079-.868-.231l-1.29-.736a.245.245 0 0 0-.124-.033H8.75V13h2.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1 0-1.5h2.5V3.5h-.984a.245.245 0 0 0-.124.033l-1.289.737c-.265.15-.564.23-.869.23h-.162l2.112 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.016.015-.045.04c-.21.176-.441.327-.686.45C4.556 10.78 3.88 11 3 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L2.178 4.5H1.75a.75.75 0 0 1 0-1.5h2.234a.249.249 0 0 0 .125-.033l1.288-.737c.265-.15.564-.23.869-.23h.984V.75a.75.75 0 0 1 1.5 0Zm2.945 8.477c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L13 6.327Zm-10 0c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L3 6.327Z");
+    }
+    
+    button svg{
+		height: 20px;
+		translate: -10px 3px;
+		width: 20px;	
+	}
+    button svg path{
+        stroke: var(--teal-mlight);
+        stroke-width: 2px;
+    }
+	button.second{
+		all: unset;
+        position: absolute;
+        top: 1px;
+        right: 5px;
+		font-size: 20px;
+		font-family: var(--content-font);
+		cursor: pointer;
+        color: var(--teal-mlight);
+	}
+	button.second::before{
+		translate: 20px 25px;
+		content: '';
+		width: 0%;
+		height: 3px;
+		transition: all .7s;
+		display: block;
+	}
+	button.second:hover::before{
+		width: calc(100% - 20px);
+	}
+</style>
+</html>
